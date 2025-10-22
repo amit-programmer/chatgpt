@@ -7,18 +7,26 @@ const pc = new Pinecone({ apiKey: process.env.PINECONE_API_KEY });
 const cohortgptIndex = pc.Index('chatgpt-test');
 
 async function createMemory({vectors, metadata, messageId}) {
+    // Ensure vectors is an array
+    // const vectorArray = Array.isArray(vectors) ? vectors : [vectors];
     await cohortgptIndex.upsert([{
-        id: messageId,
-        values: vectors,
+    //       vectors: [
+    //   {
+        id: messageId.toString(),
+        values: vectors,   // keep as flat array
         metadata
+    //   }
+    // ]
     }])
 }
 
 async function queryMemory({queryVectors, limit = 5, metadata}){
+    // Ensure queryVectors is an array
+    // const vectorArray = Array.isArray(queryVectors) ? queryVectors : [queryVectors];
     const data = await cohortgptIndex.query({
         vector: queryVectors,
         topK: limit,
-        filter: metadata ? { metadata } : undefined,
+        filter: metadata ?  metadata  : undefined,
         includeMetadata: true
     })
 
