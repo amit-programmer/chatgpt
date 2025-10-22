@@ -38,8 +38,7 @@ const userSchema = new mongoose.Schema({
         lowercase: true,
         trim: true
       },
-}
-,
+},
     {
         timestamps:true
     })
@@ -49,4 +48,3 @@ module.exports = userModel;
 
 
 
-// backend @user.model.js @auth.controller.js @firebase-service-account.json @app.js @firebaseAdmin.js @server.js  @package.json  frontend @Login.jsx @firebase.js @package.json  in login.jsx i am click (lgoin with google) button show email to login show login activitie is complete but show login.jsx page and not save user data in database what is error in my code fix code what is reason this issue show

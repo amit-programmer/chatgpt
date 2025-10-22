@@ -2,6 +2,7 @@ const userModel = require("../models/user.model");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const Message = require("../models/message.model");
+const { nanoid } = require("nanoid");
 
 
 async function registerUser(req, res) {
@@ -25,13 +26,18 @@ async function registerUser(req, res) {
 
         const hashedPassword = await bcrypt.hash(password, 10);
 
+        const baseSlug = `${firstName}-${lastName}`.toLowerCase().replace(/\s+/g, "-");
+    const profileSlug = `${baseSlug}-${nanoid(6)}`;
+
         const newUser = await userModel.create({
             fullName: {
                 firstName,
                 lastName
             },
             email,
-            password: hashedPassword
+            password: hashedPassword,
+            profileSlug,
+            lastLogin: new Date()
         });
 
         const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET);
@@ -43,7 +49,8 @@ async function registerUser(req, res) {
             user: {
                 email: newUser.email,
                 _id: newUser._id,  // Fix: Changed from user._id to newUser._id
-                fullName: newUser.fullName
+                fullName: newUser.fullName,
+                profileSlug: newUser.profileSlug
             }
         });
 
@@ -174,12 +181,17 @@ async function authlogin(req, res) {
 
     if (!user) {
       const [firstName, lastName] = name ? name.split(" ") : ["User", ""];
+
+const baseSlug = `${firstName}-${lastName}`.toLowerCase().replace(/\s+/g, "-");
+      const profileSlug = `${baseSlug}-${nanoid(6)}`;
+
       user = await userModel.create({
         fullName: { firstName, lastName },
         email,
         password: `${Date.now()}_auth0`, // temporary placeholder
         picture: picture || "https://wallpapercave.com/wp/wp7395689.jpg",
-        lastLogin: new Date()
+        lastLogin: new Date(),
+         profileSlug
       });
     } else {
       user.lastLogin = new Date();
@@ -204,6 +216,7 @@ async function authlogin(req, res) {
         fullName: user.fullName,
         email: user.email,
         picture: user.picture,
+        profileSlug: user.profileSlug,
         lastLogin: user.lastLogin
       },
       token
