@@ -1,7 +1,7 @@
 const express = require("express");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
-
+const path = require("path")
 
 // Routes
 const chatRoutes = require("./routes/chat.routes");
@@ -20,7 +20,12 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+app.use(express.static(path.join(_dirname, "../public")))
 
+
+app.get("*name", (req, res)=>{
+    res.sendFile(path.join(_dirname, "../public/index.html"))
+})
 
 // API routes with proper prefixes
 app.use("/api/auth", authRoutes);
