@@ -206,4 +206,3 @@ function initSocketServer(httpServer) {
 module.exports = initSocketServer;
 
 
-mongodb+srv://amitranjan352004:IL0I1Oqab776TzVz@cluster0.ryumluz.mongodb.net/
