@@ -19,14 +19,17 @@ function initSocketServer(httpServer) {
 
   io.use(async (socket, next) => {
     try {
-      const cookies = cookie.parse(socket.handshake.headers?.cookie || "");
-      console.log("Parsed cookies:", cookies); // Debug log
+     // Prefer token from socket auth (frontend) instead of cookies
+    const token =
+      socket.handshake.auth?.token ||
+      cookie.parse(socket.handshake.headers?.cookie || "").token;
 
-      if (!cookies.token) {
-        next(new Error("No token found"));
-      }
+    if (!token) {
+      console.error("❌ Socket Auth Error: No JWT token provided");
+      return next(new Error("jwt must be provided"));
+    }
 
-      const decoded = jwt.verify(cookies.token, process.env.JWT_SECRET);
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
       const user = await userModel.findById(decoded.id);
       if (!user) {
